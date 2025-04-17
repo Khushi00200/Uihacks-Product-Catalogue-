@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Add to .gitignore to ignore SVG files
+public/products/*.svg
+

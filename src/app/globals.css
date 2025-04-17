@@ -1,26 +1,386 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #333333;
+  --spotlight: rgba(255, 255, 255, 0.1);
+  --overlay: rgba(0, 0, 0, 0.7);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-spotlight: var(--spotlight);
+  --color-overlay: var(--overlay);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html, body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimize scrolling performance */
+* {
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for horizontal scrolling */
+.horizontal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) var(--background);
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 10px;
+}
+
+/* Spotlight effect for product cards */
+.spotlight-effect {
+  position: relative;
+}
+
+.spotlight-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.95) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top light beam effect */
+.light-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.light-beam::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, transparent 15%);
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.7;
+}
+
+/* Product name styling */
+.product-name {
+  font-family: var(--font-display), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+}
+
+/* Grainy texture overlay - disabled for cleaner look
+.grainy-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+}
+*/
+
+/* Horizontal scroll container */
+.horizontal-container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.horizontal-item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+}
+
+/* Vignette effect */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 100px 20px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Top-down lighting effect */
+.top-light {
+  position: relative;
+  overflow: hidden;
+}
+
+.top-light::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.9) 100%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* CSS-based lighting effects used in ModelImage component */
+.lighting-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.vignette-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 100px 20px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.spotlight-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0.7;
+}
+
+/* Model image container specific styles */
+.model-image-container {
+  position: relative;
+  background-color: #111;
+}
+
+/* Smoke effect animations - refined for more subtle, natural movement */
+@keyframes scrollSmoke {
+  0% {
+    background-position: 0% 0%;
+  }
+  33% {
+    background-position: 0.5% 50%;
+  }
+  66% {
+    background-position: -0.5% 100%;
+  }
+  100% {
+    background-position: 0% 150%;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Add a more subtle horizontal drift to the smoke */
+@keyframes scrollSmokeDrift {
+  0% {
+    background-position: 0% 0%;
+  }
+  20% {
+    background-position: 1% 30%;
+  }
+  40% {
+    background-position: 0% 60%;
+  }
+  60% {
+    background-position: -1% 90%;
+  }
+  80% {
+    background-position: -0.5% 120%;
+  }
+  100% {
+    background-position: 0% 150%;
+  }
 }
+
+/* Add a more dramatic wavy motion for variety */
+@keyframes scrollSmokeWavy {
+  0% {
+    background-position: 0% 0%;
+  }
+  12% {
+    background-position: 3% 20%;
+  }
+  25% {
+    background-position: 1% 40%;
+  }
+  37% {
+    background-position: -2% 60%;
+  }
+  50% {
+    background-position: -4% 80%;
+  }
+  62% {
+    background-position: -2% 100%;
+  }
+  75% {
+    background-position: 1% 120%;
+  }
+  87% {
+    background-position: 3% 140%;
+  }
+  100% {
+    background-position: 0% 150%;
+  }
+}
+
+.smoke-effect {
+  background-repeat: repeat;
+  background-size: 600px 600px; /* Larger for more subtle texture */
+  transition: opacity 0.8s ease, transform 0.5s ease;
+  will-change: transform, opacity, background-position; /* Performance optimization */
+  animation-play-state: running !important; /* Ensure animation is running */
+}
+
+.smoke-effect-secondary {
+  background-repeat: repeat;
+  background-size: 800px 800px; /* Larger for more subtle texture */
+  transition: opacity 0.8s ease, transform 0.5s ease;
+  will-change: transform, opacity, background-position; /* Performance optimization */
+  animation-play-state: running !important; /* Ensure animation is running */
+}
+
+/* Swiper Carousel slide transitions - enhanced for buttery smooth scrolling */
+.mySwiper .swiper-slide {
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: scale(0.75); /* Non-active slides smaller */
+  opacity: 0.25; /* Non-active slides dimmer */
+  filter: brightness(0.5) blur(1px); /* Slight blur for depth effect */
+  will-change: transform, opacity, filter;
+  pointer-events: none; /* Disable interaction with non-active slides */
+}
+
+.mySwiper .swiper-slide-active {
+  transform: scale(1);
+  opacity: 1;
+  filter: brightness(1.15) blur(0px);
+  pointer-events: auto; /* Enable interaction with active slide */
+}
+
+.mySwiper .swiper-slide-prev,
+.mySwiper .swiper-slide-next {
+  opacity: 0.4; /* Adjacent slides slightly more visible */
+  transform: scale(0.8); /* Adjacent slides slightly larger */
+  filter: brightness(0.7) blur(0.5px); /* Less blur for adjacent slides */
+  pointer-events: auto; /* Enable interaction with adjacent slides */
+}
+
+/* Optimize performance with hardware acceleration */
+.mySwiper {
+  -webkit-perspective: 1000;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Optimize Swiper container for smooth transitions */
+.swiper-wrapper {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Enhanced parallax effects */
+[data-swiper-parallax],
+[data-swiper-parallax-x],
+[data-swiper-parallax-y],
+[data-swiper-parallax-opacity],
+[data-swiper-parallax-scale] {
+  transition-property: transform, opacity, scale;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Improve touch response */
+.swiper-container {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smoke and spotlight layers for focused effect */
+.smokeLayer {
+  background-repeat: repeat;
+  transition: opacity 0.8s ease;
+  will-change: opacity, background-position;
+  animation-play-state: running !important;
+  pointer-events: none;
+}
+
+.spotlightLayer {
+  transition: opacity 0.8s ease;
+  will-change: opacity;
+  pointer-events: none;
+  /* Add subtle blur for softer light effect */
+  filter: blur(3px);
+}
+
+
